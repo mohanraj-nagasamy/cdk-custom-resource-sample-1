@@ -1,9 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import {CustomResource} from 'aws-cdk-lib';
-import {Construct} from 'constructs';
+import { CustomResource } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam'; // Import the missing 'iam' module
-import {Provider} from 'aws-cdk-lib/custom-resources';
-import {RetentionDays} from 'aws-cdk-lib/aws-logs';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import path = require('path');
 import * as fs from "node:fs";
@@ -11,10 +11,10 @@ import * as fs from "node:fs";
 const COLLECTION_ID = "demo_rekognition_collection";
 
 export interface MyCustomResourceProps {
-  /**
-   * Message to echo
-   */
-  Message: string;
+    /**
+     * Message to echo
+     */
+    Message: string;
 }
 
 export class CdkCustomResourceSample1Stack extends cdk.Stack {
@@ -33,7 +33,7 @@ export class CdkCustomResourceSample1Stack extends cdk.Stack {
         const onEvent = this.customResourceUsingJavaScript(rekognitionCustomResourceRole);
         // const onEvent = this.customResourceUsingPython(rekognitionCustomResourceRole);
 
-        const rekognitionCustomResourceProvider = new Provider(this, "rekognitionCustomResourceProvider", {
+        const rekognitionCustomResourceProvider = new cr.Provider(this, "rekognitionCustomResourceProvider", {
             // onEventHandler: onEventHandlerFunction,
             onEventHandler: onEvent,
             // logRetention: RetentionDays.ONE_DAY
@@ -70,7 +70,19 @@ export class CdkCustomResourceSample1Stack extends cdk.Stack {
         //   role: rekognitionCustomResourceRole
         // });
 
-        return new lambda.Function(this, 'rekognitionCustomResourceFunction', {
+        // return new lambda.Function(this, 'rekognitionCustomResourceFunction', {
+        //     runtime: lambda.Runtime.NODEJS_16_X,
+        //     handler: 'rekognition-custom-resource-js.handler',
+        //     code: lambda.Code.fromAsset(path.resolve(__dirname, 'lambda/js')),
+        //     environment: {
+        //         COLLECTION_ID: COLLECTION_ID
+        //     },
+        //     role: rekognitionCustomResourceRole
+        // });
+
+
+        return new lambda.SingletonFunction(this, 'rekognitionCustomResourceFunction', {
+            uuid: '57B4FA95-AE47-430C-A59C-AB3A3C01D37C',
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'rekognition-custom-resource-js.handler',
             code: lambda.Code.fromAsset(path.resolve(__dirname, 'lambda/js')),
@@ -80,10 +92,9 @@ export class CdkCustomResourceSample1Stack extends cdk.Stack {
             role: rekognitionCustomResourceRole
         });
 
-        
     }
 
-// private static createLogGroup(
+    // private static createLogGroup(
     //   scope: Construct,
     //   myFunctiontwo: lambda.Function
     // ) {
